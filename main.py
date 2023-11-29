@@ -42,22 +42,24 @@ def get_weather(message: Message):
 
     data = json.loads(res.text)
 
-    if data["cod"] == "404":
-        bot.reply_to(
-            message, f"{data['message'].capitalize()}😩\nTry another city name")
-    if data["cod"] == 200:
-        city = data['name']
-        temp = round(data["main"]["temp"])
-        weather = data['weather'][0]['main']
-        if temp > 0:
-            temp = f"+{temp}"
-        temp_feel = round(data["main"]["feels_like"])
-        if temp_feel > 0:
-            temp_feel = f"+{temp_feel}"
-        bot.reply_to(
-            message, f"The weather in {city} is: {temp} {emoji[weather]} \nFeels like {temp_feel}")
-    else:
+    if data["cod"] != 200:
+        if data["cod"] == "404":
+            bot.reply_to(
+                message, f"{data['message'].capitalize()}😩\nTry another city name")
+            return
         bot.reply_to(message, "Something went wrong, try again later 🤔")
+        return
+
+    city = data['name']
+    temp = round(data["main"]["temp"])
+    weather = data['weather'][0]['main']
+    if temp > 0:
+        temp = f"+{temp}"
+    temp_feel = round(data["main"]["feels_like"])
+    if temp_feel > 0:
+        temp_feel = f"+{temp_feel}"
+    bot.reply_to(
+        message, f"The weather in {city} is: {temp} {emoji[weather]} \nFeels like {temp_feel}")
 
 
 print("Bot now running...")
