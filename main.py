@@ -1,3 +1,4 @@
+import logging
 from config import Config
 
 from telebot import TeleBot
@@ -24,21 +25,29 @@ emoji = {
     "Clouds": "☁️"
 }
 
+logging.basicConfig(level=logging.INFO)
 bot = TeleBot(Config.BOT_KEY)
 
 
-@bot.message_handler(commands=["start"])
+@bot.message_handler(commands=["start", "help"])
 def start(message: Message):
     """Hello user"""
+    logging.info(f"Recived '{message.text}' command.")
     bot.send_message(message.from_user.id,
                      f'Hello, {message.from_user.first_name} 👋\nWrite city name to get weather.')
 
 
 @bot.message_handler(content_types=["text"])
 def get_weather(message: Message):
-    city = message.text.strip().lower()
+    logging.info(
+        f"Recived text: '{message.text}' from user: '{message.from_user.first_name}'")
+    text = message.text.strip().lower()
+    if text[0] == "/":
+        bot.reply_to(
+            message, "Wrong command!\nAvailable commands: /start, /help")
+        return
     res = requests.get(
-        f"https://api.openweathermap.org/data/2.5/weather?q={city}&appid={Config.API_KEY}&units=metric")
+        f"https://api.openweathermap.org/data/2.5/weather?q={text}&appid={Config.API_KEY}&units=metric")
 
     data = json.loads(res.text)
 
@@ -62,5 +71,7 @@ def get_weather(message: Message):
         message, f"The weather in {city} is: {temp} {emoji[weather]} \nFeels like {temp_feel}")
 
 
-print("Bot now running...")
-bot.polling(none_stop=True)
+if __name__ == "__main__":
+    # Polling checks for new messages
+    print("Bot now running...")
+    bot.polling(none_stop=True)
