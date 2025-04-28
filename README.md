@@ -30,10 +30,11 @@ git clone https://github.com/gsmart998/tg_weather_bot.git
 cd tg_weather_bot
 ```
 
-2. Install dependencies (this will automatically create and use a virtual environment):
+2. Create virtual environment and install dependencies:
 
 ```bash
-uv install
+uv venv
+uv pip install -r <(uv pip compile pyproject.toml)
 ```
 
 3. Add your tokens to the `.env` file:
